@@ -62,6 +62,109 @@
 #define ATOMIC_FLAG_INIT 0
 #define ATOMIC_VAR_INIT(value) (value)
 
+#ifdef CONFIG_LIBC_ARCH_NXATOMIC
+
+#define atomic_store_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_store_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_store_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_store_4(obj, val, type) : \
+                         nx_atomic_store_8(obj, val, type))
+
+#define atomic_store(obj, val) atomic_store_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_store_explicit(obj, val, type) atomic_store_n(obj, val, type)
+#define atomic_init(obj, val) atomic_store(obj, val)
+
+#define atomic_load_n(obj, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_load_1(obj, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_load_2(obj, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_load_4(obj, type) : \
+                         nx_atomic_load_8(obj, type))
+
+#define atomic_load(obj) atomic_load_n(obj, __ATOMIC_RELAXED)
+#define atomic_load_explicit(obj, type) atomic_load_n(obj, type)
+
+#define atomic_exchange_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_exchange_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_exchange_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_exchange_4(obj, val, type) : \
+                         nx_atomic_exchange_8(obj, val, type))
+
+#define atomic_exchange(obj, val) atomic_exchange_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_exchange_explicit(obj, val, type) atomic_exchange_n(obj, val, type)
+
+#define atomic_compare_exchange_n(obj, expected, desired, weak, success, failure) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_compare_exchange_1(obj, expected, desired, weak, success, failure) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_compare_exchange_2(obj, expected, desired, weak, success, failure) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_compare_exchange_4(obj, expected, desired, weak, success, failure) : \
+                         nx_atomic_compare_exchange_8(obj, expected, desired, weak, success, failure))
+
+#define atomic_compare_exchange_strong(obj, expected, desired) \
+  atomic_compare_exchange_n(obj, expected, desired, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED)
+#define atomic_compare_exchange_strong_explicit(obj, expected, desired, success, failure) \
+  atomic_compare_exchange_n(obj, expected, desired, false, success, failure)
+#define atomic_compare_exchange_weak(obj, expected, desired) \
+  atomic_compare_exchange_n(obj, expected, desired, true, __ATOMIC_RELAXED, __ATOMIC_RELAXED)
+#define atomic_compare_exchange_weak_explicit(obj, expected, desired, success, failure) \
+  atomic_compare_exchange_n(obj, expected, desired, true, success, failure)
+
+#define atomic_flag_test_and_set_n(obj, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_flag_test_and_set_1(obj, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_flag_test_and_set_2(obj, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_flag_test_and_set_4(obj, type) : \
+                         nx_atomic_flag_test_and_set_8(obj, type))
+
+#define atomic_flag_test_and_set(obj) atomic_flag_test_and_set_n(obj, __ATOMIC_RELAXED)
+#define atomic_flag_test_and_set_explicit(obj, type) atomic_flag_test_and_set_n(obj, 1, type)
+#define atomic_flag_clear(obj) atomic_store(obj, 0)
+#define atomic_flag_clear_explicit(obj, type) atomic_store_explicit(obj, 0, type)
+
+#define atomic_fetch_and_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_fetch_and_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_fetch_and_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_fetch_and_4(obj, val, type) : \
+                         nx_atomic_fetch_and_8(obj, val, type))
+
+#define atomic_fetch_and(obj, val) atomic_fetch_and_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_fetch_and_explicit(obj, val, type) atomic_fetch_and_n(obj, val, type)
+
+#define atomic_fetch_or_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_fetch_or_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_fetch_or_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_fetch_or_4(obj, val, type) : \
+                         nx_atomic_fetch_or_8(obj, val, type))
+
+#define atomic_fetch_or(obj, val) atomic_fetch_or_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_fetch_or_explicit(obj, val, type) atomic_fetch_or_n(obj, val, type)
+
+#define atomic_fetch_xor_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_fetch_xor_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_fetch_xor_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_fetch_xor_4(obj, val, type) : \
+                         nx_atomic_fetch_xor_8(obj, val, type))
+
+#define atomic_fetch_xor(obj, val) atomic_fetch_xor_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_fetch_xor_explicit(obj, val, type) atomic_fetch_xor_n(obj, val, type)
+
+#define atomic_fetch_add_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_fetch_add_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_fetch_add_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_fetch_add_4(obj, val, type) : \
+                         nx_atomic_fetch_add_8(obj, val, type))
+
+#define atomic_fetch_add(obj, val) atomic_fetch_add_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_fetch_add_explicit(obj, val, type) atomic_fetch_add_n(obj, val, type)
+
+#define atomic_fetch_sub_n(obj, val, type) \
+  (sizeof(*(obj)) == 1 ? nx_atomic_fetch_sub_1(obj, val, type) : \
+   sizeof(*(obj)) == 2 ? nx_atomic_fetch_sub_2(obj, val, type) : \
+   sizeof(*(obj)) == 4 ? nx_atomic_fetch_sub_4(obj, val, type) : \
+                         nx_atomic_fetch_sub_8(obj, val, type))
+
+#define atomic_fetch_sub(obj, val) atomic_fetch_sub_n(obj, val, __ATOMIC_RELAXED)
+#define atomic_fetch_sub_explicit(obj, val, type) atomic_fetch_sub_n(obj, val, type)
+
+#else
+
 #define atomic_store_n(obj, val, type) \
   (sizeof(*(obj)) == 1 ? __atomic_store_1(obj, val, type) : \
    sizeof(*(obj)) == 2 ? __atomic_store_2(obj, val, type) : \
@@ -161,6 +264,8 @@
 #define atomic_fetch_sub(obj, val) atomic_fetch_sub_n(obj, val, __ATOMIC_RELAXED)
 #define atomic_fetch_sub_explicit(obj, val, type) atomic_fetch_sub_n(obj, val, type)
 
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -193,6 +298,91 @@ typedef volatile wchar_t atomic_wchar_t;
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+#ifdef CONFIG_LIBC_ARCH_NXATOMIC
+
+void nx_atomic_store_1(FAR volatile void *ptr, uint8_t value,
+                      int memorder);
+void nx_atomic_store_2(FAR volatile void *ptr, uint16_t value,
+                      int memorder);
+void nx_atomic_store_4(FAR volatile void *ptr, uint32_t value,
+                      int memorder);
+void nx_atomic_store_8(FAR volatile void *ptr, uint64_t value,
+                      int memorder);
+uint8_t nx_atomic_load_1(FAR const volatile void *ptr, int memorder);
+uint16_t nx_atomic_load_2(FAR const volatile void *ptr, int memorder);
+uint32_t nx_atomic_load_4(FAR const volatile void *ptr, int memorder);
+uint64_t nx_atomic_load_8(FAR const volatile void *ptr, int memorder);
+uint8_t nx_atomic_exchange_1(FAR volatile void *ptr, uint8_t value,
+                            int memorder);
+uint16_t nx_atomic_exchange_2(FAR volatile void *ptr, uint16_t value,
+                             int memorder);
+uint32_t nx_atomic_exchange_4(FAR volatile void *ptr, uint32_t value,
+                             int memorder);
+uint64_t nx_atomic_exchange_8(FAR volatile void *ptr, uint64_t value,
+                             int memorder);
+bool nx_atomic_compare_exchange_1(FAR volatile void *mem, FAR void *expect,
+                                 uint8_t desired, bool weak, int success,
+                                 int failure);
+bool nx_atomic_compare_exchange_2(FAR volatile void *mem, FAR void *expect,
+                                 uint16_t desired, bool weak, int success,
+                                 int failure);
+bool nx_atomic_compare_exchange_4(FAR volatile void *mem, FAR void *expect,
+                                 uint32_t desired, bool weak, int success,
+                                 int failure);
+bool nx_atomic_compare_exchange_8(FAR volatile void *mem, FAR void *expect,
+                                 uint64_t desired, bool weak, int success,
+                                 int failure);
+uint8_t nx_atomic_flag_test_and_set_1(FAR const volatile void *ptr,
+                                     int memorder);
+uint16_t nx_atomic_flag_test_and_set_2(FAR const volatile void *ptr,
+                                      int memorder);
+uint32_t nx_atomic_flag_test_and_set_4(FAR const volatile void *ptr,
+                                      int memorder);
+uint64_t nx_atomic_flag_test_and_set_8(FAR const volatile void *ptr,
+                                      int memorder);
+uint8_t nx_atomic_fetch_add_1(FAR volatile void *ptr, uint8_t value,
+                             int memorder);
+uint16_t nx_atomic_fetch_add_2(FAR volatile void *ptr, uint16_t value,
+                              int memorder);
+uint32_t nx_atomic_fetch_add_4(FAR volatile void *ptr, uint32_t value,
+                              int memorder);
+uint64_t nx_atomic_fetch_add_8(FAR volatile void *ptr, uint64_t value,
+                              int memorder);
+uint8_t nx_atomic_fetch_sub_1(FAR volatile void *ptr, uint8_t value,
+                             int memorder);
+uint16_t nx_atomic_fetch_sub_2(FAR volatile void *ptr, uint16_t value,
+                              int memorder);
+uint32_t nx_atomic_fetch_sub_4(FAR volatile void *ptr, uint32_t value,
+                              int memorder);
+uint64_t nx_atomic_fetch_sub_8(FAR volatile void *ptr, uint64_t value,
+                              int memorder);
+uint8_t nx_atomic_fetch_and_1(FAR volatile void *ptr, uint8_t value,
+                             int memorder);
+uint16_t nx_atomic_fetch_and_2(FAR volatile void *ptr, uint16_t value,
+                              int memorder);
+uint32_t nx_atomic_fetch_and_4(FAR volatile void *ptr, uint32_t value,
+                              int memorder);
+uint64_t nx_atomic_fetch_and_8(FAR volatile void *ptr, uint64_t value,
+                              int memorder);
+uint8_t nx_atomic_fetch_or_1(FAR volatile void *ptr, uint8_t value,
+                            int memorder);
+uint16_t nx_atomic_fetch_or_2(FAR volatile void *ptr, uint16_t value,
+                             int memorder);
+uint32_t nx_atomic_fetch_or_4(FAR volatile void *ptr, uint32_t value,
+                             int memorder);
+uint64_t nx_atomic_fetch_or_8(FAR volatile void *ptr, uint64_t value,
+                             int memorder);
+uint8_t nx_atomic_fetch_xor_1(FAR volatile void *ptr, uint8_t value,
+                             int memorder);
+uint16_t nx_atomic_fetch_xor_2(FAR volatile void *ptr, uint16_t value,
+                              int memorder);
+uint32_t nx_atomic_fetch_xor_4(FAR volatile void *ptr, uint32_t value,
+                              int memorder);
+uint64_t nx_atomic_fetch_xor_8(FAR volatile void *ptr, uint64_t value,
+                              int memorder);
+
+#else
 
 void __atomic_store_1(FAR volatile void *ptr, uint8_t value, int memorder);
 void __atomic_store_2(FAR volatile void *ptr, uint16_t value, int memorder);
@@ -270,5 +460,7 @@ uint32_t __atomic_fetch_xor_4(FAR volatile void *ptr, uint32_t value,
                               int memorder);
 uint64_t __atomic_fetch_xor_8(FAR volatile void *ptr, uint64_t value,
                               int memorder);
+
+#endif
 
 #endif /* __INCLUDE_NUTTX_LIB_STDATOMIC_H */

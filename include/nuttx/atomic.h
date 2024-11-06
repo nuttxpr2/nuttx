@@ -27,6 +27,9 @@
  * Included Files
  ****************************************************************************/
 
+#ifdef CONFIG_LIBC_ARCH_NXATOMIC
+#  include <nuttx/lib/stdatomic.h>
+#else
 #ifdef __has_include
 #  if defined(__cplusplus) && __has_include(<atomic>)
 extern "C++"
@@ -91,6 +94,7 @@ extern "C++"
 #  endif
 #else
 #  include <nuttx/lib/stdatomic.h>
+#endif
 #endif
 
 /****************************************************************************
