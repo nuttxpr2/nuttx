@@ -103,13 +103,6 @@ jobs:
         id: select-builds
         run: |
 
-          # Skip all macOS Builds
-          if [[ "${{ inputs.os }}" == "macOS" ]]; then
-            echo "Skipping all macOS Builds"
-            echo "skip_all_builds=1" | tee -a $GITHUB_OUTPUT
-            exit
-          fi
-
           # Fetch the outputs from the previous step
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
